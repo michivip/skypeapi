@@ -52,7 +52,7 @@ type EndpointHandler struct {
 
 // The activityReceivedHandleFunction will gets called on incoming Activity objects for example incoming skype messages
 // Returns a new Endpoint struct object with the default Strict-Transport-Security Header "max-age=63072000; includeSubDomains".
-func NewActionHookHandler(activityReceivedHandleFunction func(activity *Activity)) (*EndpointHandler) {
+func NewEndpointHandler(activityReceivedHandleFunction func(activity *Activity)) (*EndpointHandler) {
 	endpointHandler := &EndpointHandler{
 		TlsHeaderValue:                 defaultTlsHeaderValue,
 		ActivityReceivedHandleFunction: activityReceivedHandleFunction,
@@ -78,13 +78,13 @@ func (endpointHandler EndpointHandler) ServeHTTP(responseWriter http.ResponseWri
 // This method could be used on an Endpoint struct object to setup an own web server which
 // handles skype actions. The returned http.Server can still be edited to
 // TODO: editable tls configuration
-func (actionHook Endpoint) SetupServer(handler EndpointHandler) (http.Server) {
+func (endpoint Endpoint) SetupServer(handler EndpointHandler) (http.Server) {
 	mux := http.NewServeMux()
-	mux.Handle(actionHook.Path, handler)
+	mux.Handle(endpoint.Path, handler)
 	srv := &http.Server{
-		Addr:         actionHook.Address,
+		Addr:         endpoint.Address,
 		Handler:      mux,
-		TLSConfig:    actionHook.TLSConfig,
+		TLSConfig:    endpoint.TLSConfig,
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
 	}
 	return *srv
