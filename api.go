@@ -27,6 +27,8 @@ import (
 	"net/http"
 	"net/url"
 	"encoding/json"
+	"fmt"
+	"bytes"
 )
 
 type MessageListener interface {
@@ -41,7 +43,10 @@ type TokenResponse struct {
 }
 
 const (
-	requestTokenUrl = "https://login.microsoftonline.com/botframework.com/oauth2/v2.0/token"
+	unexpectedHttpStatusCodeTemplate = "The server returned an unexpected HTTP status code: %v"
+
+	requestTokenUrl      = "https://login.microsoftonline.com/botframework.com/oauth2/v2.0/token"
+	replyMessageTemplate = "%vv3/conversations/%v/activities/%v"
 )
 
 func RequestAccessToken(microsoftAppId string, microsoftAppPassword string) (TokenResponse, error) {
@@ -57,5 +62,48 @@ func RequestAccessToken(microsoftAppId string, microsoftAppPassword string) (Tok
 		defer response.Body.Close()
 		json.NewDecoder(response.Body).Decode(&tokenResponse)
 		return tokenResponse, err
+	}
+}
+
+func SendReplyMessage(activity *Activity, message, authorizationToken string) error {
+	responseActivity := &Activity{
+		Type:         activity.Type,
+		From:         activity.Recipient,
+		Conversation: activity.Conversation,
+		Recipient:    activity.From,
+		Text:         message,
+		ReplyToID:    activity.ID,
+	}
+	replyUrl := fmt.Sprintf(replyMessageTemplate, activity.ServiceURL, activity.Conversation.ID, activity.ID)
+	return SendActivityRequest(responseActivity, replyUrl, authorizationToken)
+}
+
+func SendActivityRequest(activity *Activity, replyUrl, authorizationToken string) error {
+	client := &http.Client{}
+	if jsonEncoded, err := json.Marshal(*activity); err != nil {
+		return err
+	} else {
+		req, err := http.NewRequest(
+			"POST",
+			replyUrl,
+			bytes.NewBuffer(*&jsonEncoded),
+		)
+		if err != nil {
+			panic(err)
+		}
+		req.Header.Set("Authorization", "Bearer "+authorizationToken)
+		req.Header.Set("Content-Type", "application/json")
+		resp, err := client.Do(*&req)
+		defer resp.Body.Close()
+		if err != nil {
+			panic(err)
+		}
+		var statusCode int = resp.StatusCode
+		if statusCode == http.StatusOK || statusCode == http.StatusCreated ||
+			statusCode == http.StatusAccepted || statusCode == http.StatusNoContent {
+			return nil
+		} else {
+			return fmt.Errorf(unexpectedHttpStatusCodeTemplate, statusCode)
+		}
 	}
 }

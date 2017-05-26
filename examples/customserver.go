@@ -21,15 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-package examples
+package skypeapiexamples
 
 import (
 	"net/http"
 	"crypto/tls"
 	"github.com/michivip/skypeapi"
-	"encoding/json"
 	"fmt"
-	"bytes"
 )
 
 // some basic constants
@@ -39,46 +37,16 @@ const (
 	someOtherStuffPath string = "/"
 	// bad practice. In real production you should better request the token via skypeapi.RequestAccessToken
 	authorizationBearerToken string = "YOUR-AUTH-TOKEN"
-	replyPath                string = "%vv3/conversations/%v/activities/%v"
 )
 
 // this handles our skype activity
 func handleActivity(activity *skypeapi.Activity) {
 	if activity.Type == "message" {
-		client := &http.Client{}
-		responseActivity := &skypeapi.Activity{
-			Type:         activity.Type,
-			From:         activity.Recipient,
-			Conversation: activity.Conversation,
-			Recipient:    activity.From,
-			Text:         "Good evening. Nice to meet you!",
-			ReplyToID:    activity.ID,
-		}
-		jsonEncObj, err := json.Marshal(*responseActivity)
-		if err != nil {
+		if err := skypeapi.SendReplyMessage(activity, "Good evening. Nice to meet you!", authorizationBearerToken);
+			err != nil {
 			panic(err)
-		}
-		jsonEnc := &jsonEncObj
-		req, err := http.NewRequest(
-			"POST",
-			fmt.Sprintf(replyPath, activity.ServiceURL, activity.Conversation.ID, activity.ID),
-			bytes.NewBuffer(*jsonEnc),
-		)
-		if err != nil {
-			panic(err)
-		}
-		req.Header.Set("Authorization", "Bearer "+authorizationBearerToken)
-		req.Header.Set("Content-Type", "application/json")
-		resp, err := client.Do(req)
-		if err != nil {
-			panic(err)
-		}
-		statusCode := resp.StatusCode
-		if statusCode == http.StatusOK || statusCode == http.StatusCreated ||
-			statusCode == http.StatusAccepted || statusCode == http.StatusNoContent {
-			fmt.Println("A message was sent to", activity.From.Name)
 		} else {
-			fmt.Println("The Skype API returned an unexpected HTTP status code:", resp.StatusCode)
+			fmt.Println("Successfully sent response message to skype user: " + activity.From.Name)
 		}
 	}
 }
