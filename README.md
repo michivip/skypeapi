@@ -18,4 +18,5 @@ This API is based on the
 ### License ###
 The source code is licensed under the MIT license. For further details see the LICENSE file.
 ### Examples ###
-You can find some examples inside the examples folder.
+You can find some examples inside the examples folder. **Warning:** These are just examples. Error handling and other 
+good practices are not used.

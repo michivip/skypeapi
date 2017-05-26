@@ -21,41 +21,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-package skypeapi
+package examples
 
 import (
-	"net/http"
-	"net/url"
+	"github.com/michivip/skypeapi"
 	"encoding/json"
+	"fmt"
 )
 
-type MessageListener interface {
-	handle()
-}
-
-type TokenResponse struct {
-	TokenType    string `json:"token_type"`
-	ExpiresIn    int `json:"expires_in"`
-	ExtExpiresIn int `json:"ext_expires_in"`
-	AccessToken  string `json:"access_token"`
-}
-
-const (
-	requestTokenUrl = "https://login.microsoftonline.com/botframework.com/oauth2/v2.0/token"
-)
-
-func RequestAccessToken(microsoftAppId string, microsoftAppPassword string) (TokenResponse, error) {
-	var tokenResponse TokenResponse
-	values := url.Values{}
-	values.Set("grant_type", "client_credentials")
-	values.Set("client_id", microsoftAppId)
-	values.Set("client_secret", microsoftAppPassword)
-	values.Set("scope", "https://api.botframework.com/.default")
-	if response, err := http.PostForm(requestTokenUrl, values); err != nil {
-		return tokenResponse, err
-	} else {
-		defer response.Body.Close()
-		json.NewDecoder(response.Body).Decode(&tokenResponse)
-		return tokenResponse, err
-	}
+/*
+In this example I am setting up a basic skype APi endpoint and print activity objects.
+We will just use the given http.Server to listen to incoming requests.
+ */
+func startSimpleEndpointPrinter() {
+	// Endpoint is going to listen on 0.0.0.0:8080
+	endpoint := skypeapi.NewEndpoint(":8080")
+	// we define our own handle function
+	srv := endpoint.SetupServer(*skypeapi.NewEndpointHandler(func(activity *skypeapi.Activity) {
+		bytes, _ := json.MarshalIndent(activity, "", "  ")
+		fmt.Println(string(bytes))
+	}))
+	// finally we just use the default method to start the server
+	srv.ListenAndServeTLS("certs/fullchain.pem", "certs/privkey.pem")
 }
