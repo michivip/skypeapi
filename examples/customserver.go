@@ -35,14 +35,13 @@ const (
 	actionHookPath     string = "/skype/actionhook"
 	address                   = ":9443"
 	someOtherStuffPath string = "/"
-	// bad practice. In real production you should better request the token via skypeapi.RequestAccessToken
-	authorizationBearerToken string = "YOUR-AUTH-TOKEN"
 )
 
-// this handles our skype activity
+// this function handles our skype activity
 func handleActivity(activity *skypeapi.Activity) {
 	if activity.Type == "message" {
-		if err := skypeapi.SendReplyMessage(activity, "Good evening. Nice to meet you!", authorizationBearerToken);
+		// hard coding an auth token is no good practice! I am just doing this to make this example more simple.
+		if err := skypeapi.SendReplyMessage(activity, "Good evening. Nice to meet you!", "YOUR-AUTH-TOKEN");
 			err != nil {
 			panic(err)
 		} else {
@@ -58,9 +57,12 @@ func handleMainPath(writer http.ResponseWriter, req *http.Request) {
 }
 
 func startCustomServerEndpoint() {
+	// bad practice. In real production you should better request the token via skypeapi.RequestAccessToken
+	// WARNING: when using a static authorization token it could expire. In future the will be an automatic refresher
+	authorizationBearerToken := "YOUR-AUTH-TOKEN"
 	mux := http.NewServeMux()
 	// here we setup an own activity handler which listens to the path "/skype/actionhook"
-	mux.Handle(actionHookPath, skypeapi.NewEndpointHandler(handleActivity))
+	mux.Handle(actionHookPath, skypeapi.NewEndpointHandler(handleActivity, authorizationBearerToken, "YOUR-APP-ID"))
 	// here we could probably just handle our main application
 	mux.HandleFunc(someOtherStuffPath, handleMainPath)
 	// here you could provide your own TLS configuration

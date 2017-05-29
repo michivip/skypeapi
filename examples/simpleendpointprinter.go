@@ -33,14 +33,20 @@ import (
 In this example I am setting up a basic skype APi endpoint and print activity objects.
 We will just use the given http.Server to listen to incoming requests.
  */
+
 func startSimpleEndpointPrinter() {
+	// bad practice. In real production you should better request the token via skypeapi.RequestAccessToken
+	// WARNING: when using a static authorization token it could expire. In future the will be an automatic refresher
+	authorizationBearerToken := "YOUR-AUTH-TOKEN"
+
 	// Endpoint is going to listen on 0.0.0.0:8080
 	endpoint := skypeapi.NewEndpoint(":8080")
+
 	// we define our own handle function
 	srv := endpoint.SetupServer(*skypeapi.NewEndpointHandler(func(activity *skypeapi.Activity) {
 		bytes, _ := json.MarshalIndent(activity, "", "  ")
 		fmt.Println(string(bytes))
-	}))
+	}, authorizationBearerToken, "YOUR-APP-ID"))
 	// finally we just use the default method to start the server
 	srv.ListenAndServeTLS("certs/fullchain.pem", "certs/privkey.pem")
 }

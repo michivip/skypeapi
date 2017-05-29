@@ -43,7 +43,7 @@ type TokenResponse struct {
 }
 
 const (
-	unexpectedHttpStatusCodeTemplate = "The server returned an unexpected HTTP status code: %v"
+	unexpectedHttpStatusCodeTemplate = "The microsoft servers returned an unexpected http status code: %v"
 
 	requestTokenUrl      = "https://login.microsoftonline.com/botframework.com/oauth2/v2.0/token"
 	replyMessageTemplate = "%vv3/conversations/%v/activities/%v"
@@ -58,10 +58,12 @@ func RequestAccessToken(microsoftAppId string, microsoftAppPassword string) (Tok
 	values.Set("scope", "https://api.botframework.com/.default")
 	if response, err := http.PostForm(requestTokenUrl, values); err != nil {
 		return tokenResponse, err
-	} else {
+	} else if response.StatusCode == http.StatusOK {
 		defer response.Body.Close()
 		json.NewDecoder(response.Body).Decode(&tokenResponse)
 		return tokenResponse, err
+	} else {
+		return tokenResponse, fmt.Errorf(unexpectedHttpStatusCodeTemplate, response.StatusCode)
 	}
 }
 
@@ -84,26 +86,28 @@ func SendActivityRequest(activity *Activity, replyUrl, authorizationToken string
 		return err
 	} else {
 		req, err := http.NewRequest(
-			"POST",
+			http.MethodPost,
 			replyUrl,
 			bytes.NewBuffer(*&jsonEncoded),
 		)
-		if err != nil {
-			panic(err)
-		}
-		req.Header.Set("Authorization", "Bearer "+authorizationToken)
-		req.Header.Set("Content-Type", "application/json")
-		resp, err := client.Do(*&req)
-		defer resp.Body.Close()
-		if err != nil {
-			panic(err)
-		}
-		var statusCode int = resp.StatusCode
-		if statusCode == http.StatusOK || statusCode == http.StatusCreated ||
-			statusCode == http.StatusAccepted || statusCode == http.StatusNoContent {
-			return nil
+		if err == nil {
+			req.Header.Set(authorizationHeaderKey, authorizationHeaderValuePrefix+authorizationToken)
+			req.Header.Set("Content-Type", "application/json")
+			resp, err := client.Do(*&req)
+			if err == nil {
+				defer resp.Body.Close()
+				var statusCode int = resp.StatusCode
+				if statusCode == http.StatusOK || statusCode == http.StatusCreated ||
+					statusCode == http.StatusAccepted || statusCode == http.StatusNoContent {
+					return nil
+				} else {
+					return fmt.Errorf(unexpectedHttpStatusCodeTemplate, statusCode)
+				}
+			} else {
+				return err
+			}
 		} else {
-			return fmt.Errorf(unexpectedHttpStatusCodeTemplate, statusCode)
+			return err
 		}
 	}
 }
