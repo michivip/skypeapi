@@ -1,8 +1,7 @@
 # Golang Skype API #
 
 ### Warning ###
-**This API is still under heavy development. Bugs can occur - please report them in the issue section.**
-**Therefore please do not use this API for professional use.**
+**This API will not be developed any more. Therefore you can still use the code or base your own application on it but please be aware of upcoming incompatibilies!**
 ### Introduction ###
 This API is based on the 
 [Bot Framework by Microsoft](https://docs.microsoft.com/de-de/bot-framework/rest-api/bot-framework-rest-connector-api-reference).
