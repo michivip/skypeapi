@@ -163,7 +163,7 @@ type Attachment struct {
 	ContentUrl string `json:"contentUrl,omitempty"`
 	// The content of the attachment. If the attachment is a rich card, set this property to the rich card
 	// object. This property and the contentUrl property are mutually exclusive.
-	Content string `json:"content,omitempty"`
+	Content AttachmentContent `json:"content,omitempty"`
 	// Name of the attachment.
 	Name string `json:"name,omitempty"`
 	// URL to a thumbnail image that the channel can use if it supports using an alternative, smaller form of
