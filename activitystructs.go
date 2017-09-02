@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
- */
+*/
 package skypeapi
 
 import "time"
@@ -163,7 +163,7 @@ type Attachment struct {
 	ContentUrl string `json:"contentUrl,omitempty"`
 	// The content of the attachment. If the attachment is a rich card, set this property to the rich card
 	// object. This property and the contentUrl property are mutually exclusive.
-	Content string `json:"content,omitempty"`
+	Content AttachmentContent `json:"content,omitempty"`
 	// Name of the attachment.
 	Name string `json:"name,omitempty"`
 	// URL to a thumbnail image that the channel can use if it supports using an alternative, smaller form of
@@ -172,6 +172,58 @@ type Attachment struct {
 	// channel could display the thumbnail image instead of the document. When the user clicks the image, the
 	// channel would open the document.
 	ThumbnailUrl string `json:"thumbnailUrl,omitempty"`
+}
+
+type AttachmentContent struct {
+	Title string `json:"title"`
+	// AdaptiveCard
+	Type     string       `json:"type,omitempty"`
+	Subtitle string       `json:"subtitle,omitempty"`
+	Text     string       `json:"text,omitempty"`
+	Images   []CardImage  `json:"images,omitempty"`
+	Buttons  []CardAction `json:"buttons,omitempty"`
+	// slice with TextBlock, Select
+	Body    []interface{} `json:"body,omitempty"`
+	Actions []Action      `json:"actions,omitempty"`
+	Tap     CardAction    `json:"tap,omitempty"`
+}
+
+type CardImage struct {
+	URL string     `json:"url"`
+	Alt string     `json:"alt,omitempty"`
+	Tap CardAction `json:"tap,omitempty"`
+}
+
+type Select struct {
+	// Input.ChoiceSet
+	Type string `json:"type"`
+	ID   string `json:"id,omitempty"`
+	// compact
+	Style   string         `json:"style,omitempty"`
+	Choices []SelectChoice `json:"choices"`
+}
+
+type SelectChoice struct {
+	Title      string `json:"title"`
+	Value      string `json:"value"`
+	IsSelected bool   `json:"isSelected,omitempty"`
+}
+
+type TextBlock struct {
+	// TextBlock
+	Type   string `json:"type"`
+	Text   string `json:"text"`
+	Size   string `json:"size,omitempty"`
+	Weight string `json:"weight,omitempty"`
+}
+
+type Action struct {
+	// Action.Http
+	Type string `json:"type"`
+	// POST
+	Method string `json:"method"`
+	URL    string `json:"url"`
+	Title  string `json:"title"`
 }
 
 type ChannelAccount struct {
