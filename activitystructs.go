@@ -185,13 +185,13 @@ type AttachmentContent struct {
 	// slice with TextBlock, Select
 	Body    []interface{} `json:"body,omitempty"`
 	Actions []Action      `json:"actions,omitempty"`
-	Tap     CardAction    `json:"tap,omitempty"`
+	Tap     *CardAction   `json:"tap,omitempty"`
 }
 
 type CardImage struct {
-	URL string     `json:"url"`
-	Alt string     `json:"alt,omitempty"`
-	Tap CardAction `json:"tap,omitempty"`
+	URL string      `json:"url"`
+	Alt string      `json:"alt,omitempty"`
+	Tap *CardAction `json:"tap,omitempty"`
 }
 
 type Select struct {
