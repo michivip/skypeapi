@@ -175,7 +175,7 @@ type Attachment struct {
 }
 
 type AttachmentContent struct {
-	Title string `json:"title"`
+	Title string `json:"title,omitempty"`
 	// AdaptiveCard
 	Type     string       `json:"type,omitempty"`
 	Subtitle string       `json:"subtitle,omitempty"`
@@ -219,11 +219,11 @@ type TextBlock struct {
 
 type Action struct {
 	// Action.Http
-	Type string `json:"type"`
+	Type string `json:"type,omitempty"`
 	// POST
-	Method string `json:"method"`
-	URL    string `json:"url"`
-	Title  string `json:"title"`
+	Method string `json:"method,omitempty"`
+	URL    string `json:"url,omitempty"`
+	Title  string `json:"title,omitempty"`
 }
 
 type ChannelAccount struct {
