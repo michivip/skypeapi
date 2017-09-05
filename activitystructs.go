@@ -97,7 +97,7 @@ type Activity struct {
 	// Speech Synthesis Markup Language (https://msdn.microsoft.com/en-us/library/hh378377(v=office.14).aspx) format.
 	Speak string `json:"speak,omitempty"`
 	// A SuggestedActions object that defines the options from which the user can choose.
-	SuggestedActions SuggestedActions `json:"suggestedActions,omitempty"`
+	SuggestedActions *SuggestedActions `json:"suggestedActions,omitempty"`
 	// Summary of the information that the message contains. For example, for a message that is sent on an email
 	// channel, this property may specify the first 50 characters of the email message.
 	Summary string `json:"summary,omitempty"`
