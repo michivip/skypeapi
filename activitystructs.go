@@ -97,7 +97,7 @@ type Activity struct {
 	// Speech Synthesis Markup Language (https://msdn.microsoft.com/en-us/library/hh378377(v=office.14).aspx) format.
 	Speak string `json:"speak,omitempty"`
 	// A SuggestedActions object that defines the options from which the user can choose.
-	SuggestedActions SuggestedActions `json:"suggestedActions,omitempty"`
+	SuggestedActions *SuggestedActions `json:"suggestedActions,omitempty"`
 	// Summary of the information that the message contains. For example, for a message that is sent on an email
 	// channel, this property may specify the first 50 characters of the email message.
 	Summary string `json:"summary,omitempty"`
@@ -175,7 +175,7 @@ type Attachment struct {
 }
 
 type AttachmentContent struct {
-	Title string `json:"title"`
+	Title string `json:"title,omitempty"`
 	// AdaptiveCard
 	Type     string       `json:"type,omitempty"`
 	Subtitle string       `json:"subtitle,omitempty"`
@@ -185,13 +185,13 @@ type AttachmentContent struct {
 	// slice with TextBlock, Select
 	Body    []interface{} `json:"body,omitempty"`
 	Actions []Action      `json:"actions,omitempty"`
-	Tap     CardAction    `json:"tap,omitempty"`
+	Tap     *CardAction   `json:"tap,omitempty"`
 }
 
 type CardImage struct {
-	URL string     `json:"url"`
-	Alt string     `json:"alt,omitempty"`
-	Tap CardAction `json:"tap,omitempty"`
+	URL string      `json:"url"`
+	Alt string      `json:"alt,omitempty"`
+	Tap *CardAction `json:"tap,omitempty"`
 }
 
 type Select struct {
@@ -219,11 +219,11 @@ type TextBlock struct {
 
 type Action struct {
 	// Action.Http
-	Type string `json:"type"`
+	Type string `json:"type,omitempty"`
 	// POST
-	Method string `json:"method"`
-	URL    string `json:"url"`
-	Title  string `json:"title"`
+	Method string `json:"method,omitempty"`
+	URL    string `json:"url,omitempty"`
+	Title  string `json:"title,omitempty"`
 }
 
 type ChannelAccount struct {
